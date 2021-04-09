@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Genre extends Model
 {
-    use Traits\Uuid;
+    use SoftDeletes, Traits\Uuid;
 
+    public $incrementing = false;
     protected $fillable = ['name', 'is_active'];
-    protected $casts = [
-        'id' => 'string'
-    ];
+    protected $dates = ['deleted_at'];
+    protected $keyType = 'string';
+    // protected $casts = [
+    //     'id' => 'string'
+    // ];
 }
