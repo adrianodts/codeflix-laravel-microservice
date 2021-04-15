@@ -7,8 +7,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Validated;
 
-class CategoryController extends Controller
+class CategoryController extends BasicCrudController
 {
+    protected function model() {
+        return Category::class;
+    }
+
     private $rules = [
         'name' => 'required|max:255',
         'is_active' => 'boolean'
@@ -16,7 +20,7 @@ class CategoryController extends Controller
 
     public function index()
     {
-        return Category::all();
+        return parent::index();
     }
 
     public function store(Request $request)
