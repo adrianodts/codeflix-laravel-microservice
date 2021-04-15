@@ -3,9 +3,6 @@
 namespace Tests\Stubs\Controllers;
 
 use App\Http\Controllers\Api\BasicCrudController;
-use App\Models\Category;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Tests\Stubs\Models\CategoryStub;
 
 class CategoryControllerStub extends BasicCrudController
@@ -14,7 +11,10 @@ class CategoryControllerStub extends BasicCrudController
         return CategoryStub::class;
     }
 
-    public function index() {
-        return parent::index();
+    protected function rulesStore() {
+        return [
+            'name' => 'required|max:255',
+            'description' => 'nullable'
+        ];
     }
 }
