@@ -7,8 +7,16 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Validated;
 
-class GenreController extends Controller
+class GenreController extends BasicCrudController
 {
+    protected function model() {
+        return Genre::class;
+    }
+
+    protected function rulesStore() {
+        return $this->rules;
+    } 
+
     private $rules = [
         'name' => 'required|max:255',
         'is_active' => 'boolean'
