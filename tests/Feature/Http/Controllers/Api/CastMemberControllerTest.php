@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\CastMember;
+use App\Models\Enums\CastMemberType;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Tests\Traits\TestValidations;
@@ -48,7 +49,7 @@ class CastMemberControllerTest extends TestCase
         ];
         $this->assertInvalidationInStoreAction($data, 'max.string', ['max' => 255]);
         $this->assertInvalidationInUpdateAction($data, 'max.string', ['max' => 255]);
-        
+
         $data = [
             'is_active' => 'a'
         ];
@@ -59,16 +60,18 @@ class CastMemberControllerTest extends TestCase
     public function testStore()
     {
         $data = [
-            'name' =>  'test'
+            'name' =>  'test',
+            'type' => CastMemberType::ACTOR
         ];
         $response = $this->assertStore($data, $data + ['is_active' => true, 'deleted_at' => null]);
         $response->assertJsonStructure(['deleted_at', 'updated_at']);
 
         $data = [
             'name' => 'test',
+            'type' => CastMemberType::ACTOR,
             'is_active' => false
         ];
-        $this->assertStore($data, $data + ['name' => 'test', 'is_active' => false]);
+        $this->assertStore($data, $data + ['name' => 'test', 'type' => 2, 'is_active' => false]);
     }
 
     public function testUpdate()
@@ -78,6 +81,7 @@ class CastMemberControllerTest extends TestCase
         ]);
         $data = [
             'name' => 'test',
+            'type' => CastMemberType::DIRECTOR,
             'is_active' => true
         ];
         $response = $this->assertUpdate($data, $data + ['is_active' => true, 'deleted_at' => null]);

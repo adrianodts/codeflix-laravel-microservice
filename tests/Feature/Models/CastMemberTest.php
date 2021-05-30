@@ -3,6 +3,7 @@
 namespace Tests\Feature\Models;
 
 use App\Models\CastMember;
+use App\Models\Enums\CastMemberType;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -35,27 +36,33 @@ class CastMemberTest extends TestCase
     public function testCreate()
     {
         $castMember = CastMember::create([
-            'name' => 'test1'
+            'name' => 'test1',
+            'type' => CastMemberType::ACTOR
         ]);
         // dd($castMember);
         $castMember->refresh();
         $this->assertEquals(36, strlen($castMember->id));
         $this->assertEquals('test1', $castMember->name);
+        $this->assertEquals(CastMemberType::ACTOR, $castMember->type);
         $this->assertTrue($castMember->is_active);
 
         $castMember = CastMember::create([
-            'name' => 'test1'
+            'name' => 'test1',
+            'type' => CastMemberType::ACTOR
         ]);
         $this->assertNotNull($castMember->name);
+        $this->assertNotNull($castMember->type);
 
         $castMember = CastMember::create([
             'name' => 'test1',
+            'type' => CastMemberType::ACTOR,
             'is_active' => false
         ]);
         $this->assertFalse($castMember->is_active);
         
         $castMember = CastMember::create([
             'name' => 'test1',
+            'type' => CastMemberType::ACTOR,
             'is_active' => true
         ]);
         $this->assertTrue($castMember->is_active);
@@ -69,6 +76,7 @@ class CastMemberTest extends TestCase
         ]);
         $data = [
             'name' => 'test_name_updated',
+            'type' => CastMemberType::DIRECTOR,
             'is_active_true' => false
         ];
         $castMember->update($data);

@@ -13,7 +13,7 @@ class CastMember extends Model
     protected $dates = ['deleted_at'];
     protected $keyType = 'string';
     protected $casts = [
-        'type' => 'integer',
+        'type' => 'required|integer|min:1|max:2',
         'is_active' => 'boolean'
     ];
     public $incrementing = false;

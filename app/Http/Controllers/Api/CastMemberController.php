@@ -19,7 +19,7 @@ class CastMemberController extends BasicCrudController
 
     private $rules = [
         'name' => 'required|max:255',
-        'type' => 'required|integer|Rule::in(CastMemberType::$types)',
+        'type' => 'required|integer|min:1|max:2',
         'is_active' => 'boolean'
     ];
 
@@ -31,26 +31,26 @@ class CastMemberController extends BasicCrudController
     public function store(Request $request)
     {
         $this->validate($request, $this->rules);
-        $genre = CastMember::create($request->all());
-        $genre->refresh();
-        return $genre;
+        $castMember = CastMember::create($request->all());
+        $castMember->refresh();
+        return $castMember;
     }
 
-    public function show(CastMember $genre)
+    public function show(CastMember $castMember)
     {
-        return $genre;
+        return $castMember;
     }
 
-    public function update(Request $request, CastMember $genre)
+    public function update(Request $request, CastMember $castMember)
     {
         $this->validate($request, $this->rules);
-        $genre->update($request->all());
-        return $genre;
+        $castMember->update($request->all());
+        return $castMember;
     }
 
-    public function destroy(CastMember $genre)
+    public function destroy(CastMember $castMember)
     {
-        $genre->delete();
+        $castMember->delete();
         return response()->noContent();
     }
 }
