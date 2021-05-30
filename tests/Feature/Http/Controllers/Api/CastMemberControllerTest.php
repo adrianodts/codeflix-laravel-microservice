@@ -51,6 +51,18 @@ class CastMemberControllerTest extends TestCase
         $this->assertInvalidationInUpdateAction($data, 'max.string', ['max' => 255]);
 
         $data = [
+            'type' => NULL
+        ];
+        $this->assertInvalidationInStoreAction($data, 'required');
+        $this->assertInvalidationInUpdateAction($data, 'required');
+        
+        $data = [
+            'type' => 'A'
+        ];
+        $this->assertInvalidationInStoreAction($data, 'integer');
+        $this->assertInvalidationInUpdateAction($data, 'integer');
+        
+        $data = [
             'is_active' => 'a'
         ];
         $this->assertInvalidationInStoreAction($data, 'boolean');
@@ -71,7 +83,7 @@ class CastMemberControllerTest extends TestCase
             'type' => CastMemberType::ACTOR,
             'is_active' => false
         ];
-        $this->assertStore($data, $data + ['name' => 'test', 'type' => 2, 'is_active' => false]);
+        $this->assertStore($data, $data + ['name' => 'test', 'type' => CastMemberType::ACTOR, 'is_active' => false]);
     }
 
     public function testUpdate()
@@ -86,8 +98,11 @@ class CastMemberControllerTest extends TestCase
         ];
         $response = $this->assertUpdate($data, $data + ['is_active' => true, 'deleted_at' => null]);
 
-        $data['name'] = 'test';
-        $this->assertUpdate($data, array_merge($data + ['name' => 'test']));
+        $data = [
+            'name' => 'test',
+            'type' => CastMemberType::ACTOR,
+        ]; 
+        $this->assertUpdate($data, array_merge($data + ['name' => 'test', 'type' => CastMemberType::ACTOR]));
     }
 
     public function testDestroy()
