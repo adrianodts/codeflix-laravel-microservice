@@ -17,12 +17,14 @@ class CastMemberControllerTest extends TestCase
 
     protected function setUp(): void {
         parent::setUp();
-        $this->castMember = factory(CastMember::class)->create();
+        $this->castMember = factory(CastMember::class)->create([
+            'type' => CastMemberType::DIRECTOR
+        ]);
     }
 
     public function testIndex()
     {
-        $response = $this->get(route('castMembers.index'));
+        $response = $this->get(route('cast_members.index'));
         $response
             ->assertStatus(200)
             ->assertJson([$this->castMember->toArray()]);
@@ -30,7 +32,7 @@ class CastMemberControllerTest extends TestCase
 
     public function testShow()
     {
-        $response = $this->get(route('castMembers.index', ['castMember' => $this->castMember->id]));
+        $response = $this->get(route('cast_members.index', ['cast_member' => $this->castMember->id]));
         $response
             ->assertStatus(200)
             ->assertJson([$this->castMember->toArray()]);
@@ -39,7 +41,8 @@ class CastMemberControllerTest extends TestCase
     public function testInvalidationData()
     {
         $data = [
-            'name' => ''
+            'name' => '',
+            'type' => ''
         ];
         $this->assertInvalidationInStoreAction($data, 'required');
         $this->assertInvalidationInUpdateAction($data, 'required');
@@ -57,10 +60,10 @@ class CastMemberControllerTest extends TestCase
         $this->assertInvalidationInUpdateAction($data, 'required');
         
         $data = [
-            'type' => 'A'
+            'type' => 's'
         ];
-        $this->assertInvalidationInStoreAction($data, 'integer');
-        $this->assertInvalidationInUpdateAction($data, 'integer');
+        $this->assertInvalidationInStoreAction($data, 'in');
+        $this->assertInvalidationInUpdateAction($data, 'in');
         
         $data = [
             'is_active' => 'a'
@@ -72,53 +75,44 @@ class CastMemberControllerTest extends TestCase
     public function testStore()
     {
         $data = [
-            'name' =>  'test',
-            'type' => CastMemberType::ACTOR
+            [
+                'name' =>  'test',
+                'type' => CastMemberType::ACTOR
+            ], [
+                'name' =>  'test',
+                'type' => CastMemberType::DIRECTOR
+            ]
         ];
-        $response = $this->assertStore($data, $data + ['is_active' => true, 'deleted_at' => null]);
-        $response->assertJsonStructure(['deleted_at', 'updated_at']);
-
-        $data = [
-            'name' => 'test',
-            'type' => CastMemberType::ACTOR,
-            'is_active' => false
-        ];
-        $this->assertStore($data, $data + ['name' => 'test', 'type' => CastMemberType::ACTOR, 'is_active' => false]);
+        foreach($data as $Key => $value) {
+            $response = $this->assertStore($value, $value + ['is_active' => true, 'deleted_at' => null]);
+            $response->assertJsonStructure(['deleted_at', 'updated_at']);
+        }
     }
 
     public function testUpdate()
     {
-        $this->castMember = factory(CastMember::class)->create([
-            'is_active' => false
-        ]);
-        $data = [
-            'name' => 'test',
-            'type' => CastMemberType::DIRECTOR,
-            'is_active' => true
-        ];
-        $response = $this->assertUpdate($data, $data + ['is_active' => true, 'deleted_at' => null]);
-
         $data = [
             'name' => 'test',
             'type' => CastMemberType::ACTOR,
-        ]; 
-        $this->assertUpdate($data, array_merge($data + ['name' => 'test', 'type' => CastMemberType::ACTOR]));
+            'is_active' => true
+        ];
+        $response = $this->assertUpdate($data, $data + ['is_active' => true, 'deleted_at' => null]);
     }
 
     public function testDestroy()
     {
-        $response = $this->json('DELETE', route('castMembers.destroy', ['castMember' => $this->castMember->id]), []);
+        $response = $this->json('DELETE', route('cast_members.destroy', ['cast_member' => $this->castMember->id]), []);
         $response->assertStatus(204);
         $this->assertNull(CastMember::find($this->castMember->id));
         $this->assertNotNull(CastMember::withTrashed()->find($this->castMember->id));
     }
 
     protected function routeStore() {
-        return route('castMembers.store');
+        return route('cast_members.store');
     }
 
     protected function routeUpdate() {
-        return route('castMembers.update', ['castMember' => $this->castMember->id]);
+        return route('cast_members.update', ['cast_member' => $this->castMember->id]);
     }
 
     protected function model() {

@@ -5,17 +5,23 @@ namespace App\Http\Controllers\Api;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Video;
 use Illuminate\Auth\Events\Validated;
 
-class GenreController extends BasicCrudController
+class VideoController extends BasicCrudController
 {
-    private $rules = [
-        'name' => 'required|max:255',
-        'is_active' => 'boolean'
-    ];
+    private $rules;
+
+    public function __construct()
+    {
+        $this-> rules = [
+            'title' => 'required|max:255',
+            'is_active' => 'boolean'
+        ];  
+    } 
 
     protected function model() {
-        return Genre::class;
+        return Video::class;
     }
 
     protected function rulesStore() {

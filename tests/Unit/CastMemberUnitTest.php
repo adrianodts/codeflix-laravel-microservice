@@ -7,7 +7,7 @@ use App\Models\Enums\CastMemberType;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use PHPUnit\Framework\TestCase;
 
-class CastMemberTest extends TestCase
+class CastMemberUnitTest extends TestCase
 {
     use DatabaseMigrations;
 
