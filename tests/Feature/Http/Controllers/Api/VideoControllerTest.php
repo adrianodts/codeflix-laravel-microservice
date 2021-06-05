@@ -15,10 +15,18 @@ class VideoControllerTest extends TestCase
     use DatabaseMigrations, TestValidations, TestSaves;
 
     private $video;
+    private $sendData;
 
     protected function setUp(): void {
         parent::setUp();
         $this->video = factory(Video::class)->create();
+        $this->sendData = [
+            'title' => 'title',
+            'description' => 'description',
+            'year_launched' => 2010,
+            'rating' =>  Video::RATING_LIST[0],
+            'duration' => 90
+        ];
     }
 
     public function testIndex()
@@ -37,58 +45,97 @@ class VideoControllerTest extends TestCase
             ->assertJson([$this->video->toArray()]);
     }
 
-    public function testInvalidationData()
+    public function testInvalidationRequired()
     {
         $data = [
-            'title' => ''
+            'title' => '',
+            'description' => '',
+            'year_launched' => '',
+            'rating' =>  '',
+            'duration' => ''
         ];
         $this->assertInvalidationInStoreAction($data, 'required');
         $this->assertInvalidationInUpdateAction($data, 'required');
+    }
 
+    public function testInvalidationMax()
+    {
         $data = [
-            'title' => str_repeat('a', 256),
+            'title' => str_repeat('a', 256)
         ];
         $this->assertInvalidationInStoreAction($data, 'max.string', ['max' => 255]);
         $this->assertInvalidationInUpdateAction($data, 'max.string', ['max' => 255]);        
     }
 
-    /*
+    public function testInvalidationInteger()
+    {
+        $data = [
+            'duration' => 'a'
+        ];
+        $this->assertInvalidationInStoreAction($data, 'integer');
+        $this->assertInvalidationInUpdateAction($data, 'integer');        
+    }
+
+    public function testInvalidationYearLaunchedField()
+    {
+        $data = [
+            'year_launched' => 'YYYY'
+        ];
+        $this->assertInvalidationInStoreAction($data, 'date_format', ['format' => 'Y']);
+        $this->assertInvalidationInUpdateAction($data, 'date_format', ['format' => 'Y']);
+    }
+
+    public function testInvalidationOpenedField()
+    {
+        $data = [
+            'opened' => 'YYYY'
+        ];
+        $this->assertInvalidationInStoreAction($data, 'boolean');
+        $this->assertInvalidationInUpdateAction($data, 'boolean');
+    }
+
+    public function testInvalidationRatingField()
+    {
+        $data = [
+            'rating' => 0
+        ];
+        $this->assertInvalidationInStoreAction($data, 'in');
+        $this->assertInvalidationInUpdateAction($data, 'in');
+    }
+
+    
     public function testStore()
     {
         $data = [
-            'title' =>  'test',
-            'description' =>  'test description',
-            'year_launched' => 1998, 
-            'opened' => 1, 
-            'rating' => Video::RATING_LIST[0], 
-            'duration' => 120
+            [
+                'send_data' => $this->sendData,
+                'test_data' => $this->sendData + ['opened' => false]
+            ],[
+                'send_data' => $this->sendData + ['opened' => true],
+                'test_data' => $this->sendData + ['opened' => true]
+            ],[
+                'send_data' => $this->sendData + ['rating' => Video::RATING_LIST[1]],
+                'test_data' => $this->sendData + ['rating' => Video::RATING_LIST[1]]
+            ]
         ];
-        $response = $this->assertStore($data, $data + ['deleted_at' => null]);
-        $response->assertJsonStructure(['deleted_at', 'updated_at']);
-        
-        $data = [
-            'title' => 'test',
-            'description' =>  'test description',
-        ];
-        $this->assertStore($data, $data + ['title' => 'test', 'description' =>  'test description']);
-        
+        foreach($data as $key => $value) {
+            $response = $this->assertStore(
+                $value['send_data'], 
+                $value['test_data'] + ['deleted_at' => null]
+            );
+            $response -> assertJsonStructure([
+                'created_at', 'updated_at'
+            ]);
+
+            $this->assertUpdate(
+                $value['send_data'], $value['test_data'] + ['deleted_at' => null]
+            );
+            $response -> assertJsonStructure([
+                'created_at', 'updated_at'
+            ]);
+        }
     }
 
-    public function testUpdate()
-    {
-        $data = [
-            'title' => 'test',
-            // 'description' => 'description',
-        ];
-        $response = $this->assertUpdate($data, $data + ['deleted_at' => null]);
-
-        // $data['description'] = null;
-        // $this->assertUpdate($data, array_merge($data + ['description' => null]));
-        
-        // $data['description'] = 'test';
-        // $this->assertUpdate($data, array_merge($data + ['description' => 'test']));
-    }
-    */
     public function testDestroy()
     {
         $response = $this->json('DELETE', route('videos.destroy', ['video' => $this->video->id]), []);
