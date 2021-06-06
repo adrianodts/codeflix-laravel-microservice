@@ -5,19 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Category extends Model
+class CastMember extends Model
 {
     use SoftDeletes, Traits\Uuid;
-
-    protected $fillable = ['name','description', 'is_active'];
+    protected $table = 'castmembers';
+    protected $fillable = ['name', 'type', 'is_active'];
     protected $dates = ['deleted_at'];
+    protected $keyType = 'string';
     protected $casts = [
+        'type' => 'required|integer|min:1|max:2',
         'is_active' => 'boolean'
     ];
-    protected $keyType = 'string';
     public $incrementing = false;
-
-    public function videos() {
-        return $this->belongsToMany(Video::class, 'category_video' ,'category_id', 'video_id');
-    }
 }
