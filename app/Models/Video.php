@@ -20,7 +20,7 @@ class Video extends Model
         'year_launched', 
         'opened', 
         'rating', 
-        'duration'
+        'duration',
     ];
     protected $dates = ['deleted_at'];
 
@@ -32,4 +32,13 @@ class Video extends Model
     ];
     protected $keyType = 'string';
     public $incrementing = false;
+
+    public function categories() {
+        // return $this->belongsToMany(Category::class, 'category_video' ,'category_id', 'video_id');
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function genres() {
+        return $this->belongsToMany(Genre::class);
+    }
 }

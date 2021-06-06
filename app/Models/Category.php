@@ -16,4 +16,8 @@ class Category extends Model
     ];
     protected $keyType = 'string';
     public $incrementing = false;
+
+    public function videos() {
+        return $this->belongsToMany(Video::class, 'category_video' ,'category_id', 'video_id');
+    }
 }
